@@ -30,6 +30,7 @@ func (r *AuthPostgres) CreateUser(user models.User) (string, error) {
 
 func (r *AuthPostgres) CheckUserExist(user models.User) (bool, error) {
 	var existedLogin string
+
 	errNoRows := errors.New("sql: no rows in result set")
 	query := fmt.Sprintf("SELECT login FROM %s WHERE login = '%s'", usersTable, user.Login)
 	row := r.db.QueryRow(query)
