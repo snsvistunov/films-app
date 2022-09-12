@@ -8,6 +8,7 @@ import (
 )
 
 var errUserExist = errors.New("user exist in db")
+var errUserIncorrectLoginPassword = errors.New("incorrect user's login or password")
 
 type errorResponse struct {
 	Message string `json:"message"`

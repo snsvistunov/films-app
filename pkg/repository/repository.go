@@ -7,7 +7,8 @@ import (
 
 type Authorization interface {
 	CreateUser(user models.User) (string, error)
-	CheckUserExist(user models.User) (bool, error)
+	CheckUserExist(login string) (bool, error)
+	GetUser(login string) (models.User, error)
 }
 
 type FilmsList interface {

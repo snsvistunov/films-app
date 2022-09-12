@@ -30,18 +30,26 @@ func (r *AuthPostgres) CreateUser(user models.User) (string, error) {
 	return id, nil
 }
 
-func (r *AuthPostgres) CheckUserExist(user models.User) (bool, error) {
+func (r *AuthPostgres) CheckUserExist(login string) (bool, error) {
 	var existedLogin string
 
-	query := fmt.Sprintf("SELECT login FROM %s WHERE login = '%s'", usersTable, user.Login)
+	query := fmt.Sprintf("SELECT login FROM %s WHERE login = '%s'", usersTable, login)
 	row := r.db.QueryRow(query)
 	if err := row.Scan(&existedLogin); err != nil && err != sql.ErrNoRows {
 		return false, err
 	}
 
-	if existedLogin == user.Login {
+	if existedLogin == login {
 		return true, nil
 	}
 
 	return false, nil
+}
+
+func (r *AuthPostgres) GetUser(login string) (models.User, error) {
+	var user models.User
+	query := fmt.Sprintf("SELECT * FROM %s WHERE login=$1", usersTable)
+	err := r.db.Get(&user, query, login)
+	fmt.Printf("\nUser %v\n", user.Password)
+	return user, err
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/snsvistunov/films-app/models"
 )
 
@@ -15,7 +16,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	exist, err := h.services.Authorization.CheckUserExist(input)
+	exist, err := h.services.Authorization.CheckUserExist(input.Login)
 	if err != nil {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -35,7 +36,21 @@ func (h *Handler) signUp(c *gin.Context) {
 }
 
 func (h *Handler) signIn(c *gin.Context) {
+	var input models.UserSignIn
 
+	if err := c.BindJSON(&input); err != nil {
+		NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	token, err := h.services.Authorization.GenerateToken(input.Login, input.Password)
+	if err != nil {
+		logrus.Error(err)
+		NewErrorResponse(c, http.StatusUnauthorized, errUserIncorrectLoginPassword.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{"token": token})
 }
 
 func (h *Handler) signOut(c *gin.Context) {
