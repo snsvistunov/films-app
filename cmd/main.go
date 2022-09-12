@@ -6,9 +6,9 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	filmsapp "github.com/snsvistunov/films-app"
 	"github.com/snsvistunov/films-app/pkg/handler"
 	"github.com/snsvistunov/films-app/pkg/repository"
+	server "github.com/snsvistunov/films-app/pkg/server"
 	"github.com/snsvistunov/films-app/pkg/service"
 	"github.com/spf13/viper"
 )
@@ -38,7 +38,7 @@ func main() {
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
-	srv := new(filmsapp.Server)
+	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}

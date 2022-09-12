@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -22,20 +22,20 @@ func (r *AuthPostgres) CreateUser(user models.User) (string, error) {
 	var id string
 	query := fmt.Sprintf("INSERT INTO %s (login, password, age) values ($1, $2, $3) RETURNING id", usersTable)
 	row := r.db.QueryRow(query, user.Login, user.Password, user.Age)
+
 	if err := row.Scan(&id); err != nil {
 		return "", err
 	}
+
 	return id, nil
 }
 
 func (r *AuthPostgres) CheckUserExist(user models.User) (bool, error) {
 	var existedLogin string
 
-	errNoRows := errors.New("sql: no rows in result set")
 	query := fmt.Sprintf("SELECT login FROM %s WHERE login = '%s'", usersTable, user.Login)
 	row := r.db.QueryRow(query)
-
-	if err := row.Scan(&existedLogin); err != nil && !errors.As(err, &errNoRows) {
+	if err := row.Scan(&existedLogin); err != nil && err != sql.ErrNoRows {
 		return false, err
 	}
 
