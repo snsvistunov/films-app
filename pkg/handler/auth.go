@@ -54,5 +54,18 @@ func (h *Handler) signIn(c *gin.Context) {
 }
 
 func (h *Handler) signOut(c *gin.Context) {
+	var token string
 
+	token, err := h.checkAuthHeader(c)
+	if err != nil {
+		logrus.Error(err)
+		NewErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	if err := h.services.DeleteToken(token); err != nil {
+		logrus.Error(err)
+		NewErrorResponse(c, http.StatusUnauthorized, errCantLogout.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{"signout": "successfully"})
 }

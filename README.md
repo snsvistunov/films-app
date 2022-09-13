@@ -5,3 +5,5 @@
  - Go 1.18 
  - PostgreSQL 
  - Docker
+ - JWT
+ - Redis

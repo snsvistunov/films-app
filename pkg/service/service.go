@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/snsvistunov/films-app/models"
 	"github.com/snsvistunov/films-app/pkg/repository"
 )
@@ -9,6 +11,8 @@ type Authorization interface {
 	CreateUser(user models.User) (string, error)
 	CheckUserExist(login string) (bool, error)
 	GenerateToken(login, password string) (string, error)
+	SaveToken(userID []uint8, token string, ttl time.Duration) error
+	DeleteToken(token string) error
 }
 
 type FilmsList interface {

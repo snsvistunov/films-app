@@ -60,7 +60,24 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 		user.Id,
 	}
 
+	tokenSignedString, err := token.SignedString([]byte(signinKey))
+	if err != nil {
+		return "", err
+	}
+
+	if err := s.SaveToken(user.Id, tokenSignedString, tokenTTL); err != nil {
+		return "", err
+	}
+
 	return token.SignedString([]byte(signinKey))
+}
+
+func (s *AuthService) SaveToken(userID []uint8, token string, ttl time.Duration) error {
+	return s.repo.SaveToken(userID, token, ttl)
+}
+
+func (s *AuthService) DeleteToken(token string) error {
+	return s.repo.DeleteToken(token)
 }
 
 func generatePasswordHash(password string) (string, error) {

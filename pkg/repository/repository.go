@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"time"
+
+	"github.com/go-redis/redis"
 	"github.com/jmoiron/sqlx"
 	"github.com/snsvistunov/films-app/models"
 )
@@ -9,6 +12,8 @@ type Authorization interface {
 	CreateUser(user models.User) (string, error)
 	CheckUserExist(login string) (bool, error)
 	GetUser(login string) (models.User, error)
+	SaveToken(userID []uint8, token string, ttl time.Duration) error
+	DeleteToken(token string) error
 }
 
 type FilmsList interface {
@@ -31,8 +36,8 @@ type Repository struct {
 	Favourites
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *sqlx.DB, storage *redis.Client) *Repository {
 	return &Repository{
-		Authorization: NewAuthPostgres(db),
+		Authorization: NewAuthDB(db, storage),
 	}
 }

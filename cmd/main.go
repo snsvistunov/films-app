@@ -35,7 +35,15 @@ func main() {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
-	repos := repository.NewRepository(db)
+	jwtStorage, err := repository.NewRedisStorage(repository.RedisConfig{
+		Host: viper.GetString("redis.host"),
+		Port: viper.GetString("redis.port"),
+	})
+	if err != nil {
+		logrus.Fatalf("failed to initialize jwt storage: %s", err.Error())
+	}
+
+	repos := repository.NewRepository(db, jwtStorage)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	srv := new(server.Server)
