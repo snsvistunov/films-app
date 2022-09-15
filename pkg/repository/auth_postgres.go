@@ -8,15 +8,30 @@ import (
 )
 
 func (r *AuthDB) CreateUser(user models.User) (string, error) {
-	var id string
+	var userId string
+	var roleId byte
+
 	query := fmt.Sprintf("INSERT INTO %s (login, password, age) values ($1, $2, $3) RETURNING id", usersTable)
 	row := r.db.QueryRow(query, user.Login, user.Password, user.Age)
 
-	if err := row.Scan(&id); err != nil {
+	if err := row.Scan(&userId); err != nil {
 		return "", err
 	}
 
-	return id, nil
+	baseUserRole := "user"
+	query = fmt.Sprintf("SELECT id FROM %s WHERE name=$1", rolesTable)
+	row = r.db.QueryRow(query, baseUserRole)
+
+	if err := row.Scan(&roleId); err != nil {
+		return "", err
+	}
+
+	query = fmt.Sprintf("INSERT INTO %s (user_id, roles_id) values ($1, $2)", userRolesTable)
+	if _, err := r.db.Query(query, userId, roleId); err != nil {
+		return "", err
+	}
+
+	return userId, nil
 }
 
 func (r *AuthDB) CheckUserExist(login string) (bool, error) {

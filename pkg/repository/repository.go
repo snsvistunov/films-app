@@ -14,6 +14,7 @@ type Authorization interface {
 	GetUser(login string) (models.User, error)
 	SaveToken(userID []uint8, token string, ttl time.Duration) error
 	DeleteToken(token string) error
+	GetUserID(token string) (string, error)
 }
 
 type FilmsList interface {

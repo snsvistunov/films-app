@@ -41,6 +41,10 @@ func (s *AuthService) CheckUserExist(login string) (bool, error) {
 	return s.repo.CheckUserExist(login)
 }
 
+func (s *AuthService) GetUserID(token string) (string, error) {
+	return s.repo.GetUserID(token)
+}
+
 func (s *AuthService) GenerateToken(login, password string) (string, error) {
 	user, err := s.repo.GetUser(login)
 	if err != nil {

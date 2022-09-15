@@ -8,7 +8,7 @@ CREATE TABLE "user"
 
 CREATE TABLE roles
 (
-    id serial not null unique, 
+    id serial not null unique PRIMARY KEY, 
     name varchar(255) not null, 
     description text not null 
 );

@@ -10,7 +10,7 @@ const (
 	usersTable      = `"user"`
 	filmsTable      = "film"
 	rolesTable      = "roles"
-	userRolesTable  = "userRoles"
+	userRolesTable  = "user_roles"
 	directorsTable  = "director"
 	favouritesTable = "favourites"
 	wishlistTable   = "wishlist"

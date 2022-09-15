@@ -13,6 +13,7 @@ type Authorization interface {
 	GenerateToken(login, password string) (string, error)
 	SaveToken(userID []uint8, token string, ttl time.Duration) error
 	DeleteToken(token string) error
+	GetUserID(token string) (string, error)
 }
 
 type FilmsList interface {

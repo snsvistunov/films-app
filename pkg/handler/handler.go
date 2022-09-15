@@ -23,7 +23,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/signout", h.signOut)
 	}
 
-	films := router.Group("/films")
+	films := router.Group("/films", h.userIdentity)
 	{
 		films.POST("/favourites", h.addFilmToFavourites)
 		films.POST("/wishlist", h.addFilmToWishlist)
