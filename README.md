@@ -13,7 +13,7 @@
 These endpoints allow you to handle Auth and Films management.
 
 ## POST
-`SECURED:false` [/auth/signup]
-`SECURED:false` [/auth/signin]
-`SECURED:true` [/auth/signout]
-`SECURED:true` [/films/film]
+`SECURED:false` /auth/signup
+`SECURED:false` /auth/signin
+`SECURED:true` /auth/signout
+`SECURED:true` /films/film
