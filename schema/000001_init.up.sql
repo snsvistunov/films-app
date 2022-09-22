@@ -33,7 +33,7 @@ CREATE TABLE film
     name varchar(255) not null, 
     genre varchar(255) not null, 
     director_id uuid references director(id) on delete cascade not null, 
-    rate numeric (1,1) not null,
+    rate numeric (3,1) not null,
     year date not null,
     minutes smallint not null
 );

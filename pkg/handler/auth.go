@@ -16,14 +16,14 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	exist, err := h.services.Authorization.CheckUserExist(input.Login)
+	exist, err := h.services.Authorization.CheckUserExists(input.Login)
 	if err != nil {
 		NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if exist {
-		NewErrorResponse(c, http.StatusConflict, errUserExist.Error())
+		NewErrorResponse(c, http.StatusConflict, errUserExists.Error())
 		return
 	}
 

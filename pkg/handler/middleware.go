@@ -11,6 +11,7 @@ const (
 	authorizationHeader = "Authorization"
 	tokenType           = "Bearer"
 	userCtx             = "userID"
+	admin               = "administrator"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) {
@@ -30,6 +31,24 @@ func (h *Handler) userIdentity(c *gin.Context) {
 
 }
 
+func (h *Handler) adminIdentity(c *gin.Context) {
+	val, exist := c.Get(userCtx)
+	if !exist {
+		NewErrorResponse(c, http.StatusInternalServerError, errUnknown.Error())
+		return
+	}
+	userID := val.(string)
+	isAdmin, err := h.services.IsAdmin(userID, admin)
+	if err != nil {
+		NewErrorResponse(c, http.StatusForbidden, err.Error())
+		return
+	}
+	if !isAdmin {
+		NewErrorResponse(c, http.StatusForbidden, errForbidden.Error())
+		return
+	}
+}
+
 func (h *Handler) checkAuthHeader(c *gin.Context) (string, error) {
 	header := c.GetHeader(authorizationHeader)
 
@@ -47,4 +66,18 @@ func (h *Handler) checkAuthHeader(c *gin.Context) (string, error) {
 	}
 	token := headerParts[1]
 	return token, nil
+}
+
+func getUserID(c *gin.Context) (string, error) {
+	id, ok := c.Get(userCtx)
+	if !ok {
+		return "", errUserdIDNotFound
+	}
+
+	userID, ok := id.(string)
+	if !ok {
+		return "", errUserdIDType
+	}
+
+	return userID, nil
 }

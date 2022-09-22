@@ -8,33 +8,46 @@ import (
 )
 
 func (r *AuthDB) CreateUser(user models.User) (string, error) {
-	var userId string
-	var roleId byte
+	var userID string
+	var roleID byte
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return "", err
+	}
 
 	query := fmt.Sprintf("INSERT INTO %s (login, password, age) values ($1, $2, $3) RETURNING id", usersTable)
 	row := r.db.QueryRow(query, user.Login, user.Password, user.Age)
 
-	if err := row.Scan(&userId); err != nil {
+	if err := row.Scan(&userID); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return "", err
+		}
 		return "", err
 	}
 
-	baseUserRole := "user"
 	query = fmt.Sprintf("SELECT id FROM %s WHERE name=$1", rolesTable)
 	row = r.db.QueryRow(query, baseUserRole)
 
-	if err := row.Scan(&roleId); err != nil {
+	if err := row.Scan(&roleID); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return "", err
+		}
 		return "", err
 	}
 
 	query = fmt.Sprintf("INSERT INTO %s (user_id, roles_id) values ($1, $2)", userRolesTable)
-	if _, err := r.db.Query(query, userId, roleId); err != nil {
+	if _, err := r.db.Query(query, userID, roleID); err != nil {
+		if err := tx.Rollback(); err != nil {
+			return "", err
+		}
 		return "", err
 	}
 
-	return userId, nil
+	return userID, tx.Commit()
 }
 
-func (r *AuthDB) CheckUserExist(login string) (bool, error) {
+func (r *AuthDB) CheckUserExists(login string) (bool, error) {
 	var existedLogin string
 
 	query := fmt.Sprintf("SELECT login FROM %s WHERE login = '%s'", usersTable, login)
@@ -56,4 +69,12 @@ func (r *AuthDB) GetUser(login string) (models.User, error) {
 	err := r.db.Get(&user, query, login)
 
 	return user, err
+}
+
+func (r *AuthDB) GetUserRole(userID string) (string, error) {
+	var userRole string
+	query := fmt.Sprintf("SELECT name FROM %s WHERE id IN (SELECT roles_id FROM %s WHERE user_id = $1)", rolesTable, userRolesTable)
+	err := r.db.Get(&userRole, query, userID)
+
+	return userRole, err
 }

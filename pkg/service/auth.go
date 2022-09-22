@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	tokenTTL  = 24 * time.Hour
-	signinKey = "jh23jerJH23ndlq2#k19Jn1nc1&"
+	tokenTTL     = 24 * time.Hour
+	signinKey    = "jh23jerJH23ndlq2#k19Jn1nc1&"
+	signinMethod = "HS256"
 )
 
 type JWTClaims struct {
@@ -37,8 +38,8 @@ func (s *AuthService) CreateUser(user models.User) (string, error) {
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) CheckUserExist(login string) (bool, error) {
-	return s.repo.CheckUserExist(login)
+func (s *AuthService) CheckUserExists(login string) (bool, error) {
+	return s.repo.CheckUserExists(login)
 }
 
 func (s *AuthService) GetUserID(token string) (string, error) {
@@ -54,7 +55,7 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return "", err
 	}
-	token := jwt.New(jwt.GetSigningMethod("HS256"))
+	token := jwt.New(jwt.GetSigningMethod(signinMethod))
 
 	token.Claims = &JWTClaims{
 		&jwt.RegisteredClaims{
@@ -84,10 +85,26 @@ func (s *AuthService) DeleteToken(token string) error {
 	return s.repo.DeleteToken(token)
 }
 
+func (s *AuthService) GetUserRole(userID string) (string, error) {
+	return s.repo.GetUserRole(userID)
+}
+
 func generatePasswordHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func (s *AuthService) IsAdmin(userID string, admin string) (bool, error) {
+	role, err := s.GetUserRole(userID)
+	if err != nil {
+		return false, err
+	}
+
+	if role != admin {
+		return false, nil
+	}
+	return true, nil
 }

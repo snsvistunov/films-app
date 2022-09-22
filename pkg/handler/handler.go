@@ -29,7 +29,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		films.POST("/wishlist", h.addFilmToWishlist)
 		films.GET("/list", h.getWholeFilmsList)
 		films.GET("/export", h.exportFilmsListToCsv)
-		films.POST("/film", h.createFilm)
+		films.POST("/film", h.adminIdentity, h.createFilm)
 		films.GET("/film", h.getFilmByID)
 	}
 
